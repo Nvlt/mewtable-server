@@ -13,7 +13,7 @@ router.route('/api/user/:token').get((request, response)=>{
     
 })
 router.route('/register').get((request, response)=>{
-    //getUsers(request,response);
+    response.send('Hello, here is some data.');
 })
 
 router.route('/login').post((request, response)=>{
