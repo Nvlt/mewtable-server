@@ -14,7 +14,7 @@ router.route('/api/user/:token').get((request, response)=>{
     
 })
 router.route('/register').get((request, response)=>{
-    response.send(DATABASE_URL);
+    response.send('test data');
 })
 
 router.route('/login').post((request, response)=>{
