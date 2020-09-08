@@ -4,6 +4,7 @@ const router = express.Router();
 const {getUsers, login} = require('./dbServices');
 const dbServices = require('./dbServices');
 const clientManager = require('./clientManager');
+const {DATABASE_URL} = require('./config');
 
 
 router.route('/api/user/:token').get((request, response)=>{
@@ -13,7 +14,7 @@ router.route('/api/user/:token').get((request, response)=>{
     
 })
 router.route('/register').get((request, response)=>{
-    response.send('Hello, here is some data.');
+    response.send(DATABASE_URL);
 })
 
 router.route('/login').post((request, response)=>{
