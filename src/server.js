@@ -1,22 +1,66 @@
-require('dotenv').config()
-const express = require('express')
-const morgan = require('morgan')
-const cors = require('cors')
-const helmet = require('helmet')
-
-const app = express()
-
-const morganOption = (process.env.NODE_ENV === 'production') ? 'tiny' : 'common';
-
-app.use(morgan(morganOption))
-app.use(helmet())
-app.use(cors())
-
-function main(request, response)
+const app = require('./app');
+const {PORT} = require('./config');
+const WebSocket = require('ws');
+const server = require('http').createServer(app);
+const wss = new WebSocket.Server({server});
+const clientManager = require('./clientManager');
+function main()
 {
-    response.send("Hello, world!");
+    console.log(`Listening on port:${PORT}`,require('./config'))
+    
 }
 
-app.get("/", main)
+wss.on('connection', (client)=>{
 
-module.exports = app
+    client.send('Checking credentials.');
+    client.once('message', (data)=>
+    {
+        let {authToken} = JSON.parse(data);
+        let storedClient = clientManager.findClientByToken(authToken);
+        //console.log(data, storedClient);
+        if(!storedClient)
+        {
+            client.send('Unauthorized');
+            client.close();
+        }
+        else
+        {
+            client.send(`Authorized`);
+            storedClient.connection = client;
+            storedClient.connection.on('message',(data)=>{
+                if(data)
+                {
+                    const type = JSON.parse(data).type;
+                    if(type == 'message')
+                    {
+                        const {authToken,message,channel_id} = JSON.parse(data);
+                        clientManager.broadcastMessage(channel_id,message,authToken);
+                        
+                    }
+                    
+                }
+                
+                
+
+                
+                
+            })
+        }
+
+        
+        
+    });
+    client.on('close',()=>{
+        console.log('connection closed.');
+    })
+});
+wss.on('close' ,()=>{
+    console.log('Connection closed');
+
+})
+
+
+
+
+
+server.listen(PORT,main)
