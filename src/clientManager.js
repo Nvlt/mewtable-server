@@ -1,4 +1,5 @@
 const {v4:uuid} = require('uuid');
+const dbServices = require('./dbServices');
 const clientManager = {
     clients:[
         
@@ -40,15 +41,17 @@ const clientManager = {
             this.clients.forEach(client =>{
                 if(client.channels.find(channel => channel.id = channel))
                 {
-                    
-                    client.connection.send(JSON.stringify({
+                    const msg = {
                         id:uuid(),
                         message:message,
                         channel:channel,
-                        date:Date.now(),
+                        date:Date(),
                         sender:sender.auth_name
                         
-                    }))
+                    }
+                    
+                    client.connection.send(JSON.stringify(msg))
+                    dbServices.registerMessage(msg);
                 }
                 
             })

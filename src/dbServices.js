@@ -57,6 +57,15 @@ registerUser:(request,response,user)=>
 
     //db('users').select('email').where({email:email});
 },
+registerMessage:async(msg)=>
+{
+    if(message)
+    {
+        const {id, message, date, channel, sender} = msg;
+        return await db.raw(`INSERT INTO messages(id,message,date,channel,sender) VALUES (${id},${message},${date},${channel},${sender})`);
+    }
+
+},
 login:async(request, response)=>
 {
     const {email = '', password = ''} = request.body; 
