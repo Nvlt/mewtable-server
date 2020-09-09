@@ -3,6 +3,7 @@ const knex = require('knex');
 const {DATABASE_URL} = require('./config');
 const {v4:uuid} = require('uuid');
 const clientManager = require('./clientManager');
+const xss = require('xss');
 const db = knex({
     client:'pg',
     connection:DATABASE_URL
@@ -57,14 +58,33 @@ registerUser:(request,response,user)=>
 
     //db('users').select('email').where({email:email});
 },
-registerMessage:async(msg)=>
+registerMessage:async function(msg)
 {
-    if(message)
+    if(msg)
     {
         const {id, message, date, channel, sender} = msg;
-        return await db.raw(`INSERT INTO messages(id,message,date,channel,sender) VALUES (${id},${message},${date},${channel},${sender})`);
+        return await db.raw(`INSERT INTO messages(id,message,date,channel,sender) VALUES ('${id}','${this.msgProcessor(message)}','${date}','${channel}','${sender}')`);
     }
 
+},
+msgProcessor:(message)=>
+{
+    const escapeCharacters = ['?'];
+    message = message.replace(/'/gi,"''");
+    let procStr = "";
+    for(let i = 0; i<message.length; i++)
+    {
+        if(escapeCharacters.includes(message[i]))
+        {
+            procStr += `\\${message[i]}`
+        }
+        else
+        {
+            procStr += message[i];
+        }
+    }
+    console.log(procStr);
+    return procStr;
 },
 login:async(request, response)=>
 {

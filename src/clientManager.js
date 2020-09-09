@@ -1,6 +1,6 @@
 const {v4:uuid} = require('uuid');
-const dbServices = require('./dbServices');
-const clientManager = {
+let dbServices = require('./dbServices');
+let clientManager = {
     clients:[
         
     ],
@@ -37,21 +37,26 @@ const clientManager = {
         console.log(this.clients, token);
         if(sender)
         {
+            dbServices = require('./dbServices');
+            
             console.log('Broadcasting')
+            const msg = {
+                id:uuid(),
+                message:message,
+                channel:channel,
+                date:Date.now(),
+                sender:sender.auth_name
+            }
+            
+            dbServices.registerMessage(msg);
+
             this.clients.forEach(client =>{
                 if(client.channels.find(channel => channel.id = channel))
                 {
-                    const msg = {
-                        id:uuid(),
-                        message:message,
-                        channel:channel,
-                        date:Date(),
-                        sender:sender.auth_name
-                        
-                    }
+                    
                     
                     client.connection.send(JSON.stringify(msg))
-                    dbServices.registerMessage(msg);
+                    
                 }
                 
             })
