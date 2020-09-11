@@ -34,7 +34,7 @@ wss.on('connection', (client)=>{
                     if(type == 'message')
                     {
                         const {authToken,message,channel_id} = JSON.parse(data);
-                        clientManager.broadcastMessage(channel_id,{type:"message",message:message},authToken);
+                        clientManager.broadcastMessage(channel_id,message,authToken);
                         
                     }
                     
