@@ -30,8 +30,7 @@ getUser:async function(response, user)
                 friends:userdata[0].friends,
                 friendRequests:userdata[0].friend_requests,
                 channels: channels,
-                messages: await dbServices.getUserMessages(userdata[0].auth_name),
-                sidebar_expanded:1
+                messages: await dbServices.getUserMessages(userdata[0].auth_name)
             });
         }        
     }
