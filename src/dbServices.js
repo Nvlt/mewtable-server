@@ -90,7 +90,7 @@ login:async(request, response)=>
 {
     const {email = '', password = ''} = request.body; 
     let userdata = await db('users').select('*').where({email:email}).catch(e =>{
-        response.status(400).json({Auth:"Rejected",reason:"Possible connection problem."});
+        response.status(400).json({Auth:"Rejected",reason:"Internal server error."});
     });
     
     if(userdata[0])
@@ -113,7 +113,7 @@ login:async(request, response)=>
                     friendRequests:userdata[0].friend_requests,
                     channels: channels,
                     messages: await dbServices.getUserMessages(userdata[0].auth_name),
-                    sidebar_expanded:1
+                    sidebar_expanded:0
                 }
         });
 

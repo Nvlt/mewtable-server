@@ -21,10 +21,7 @@ router.route('/login').post((request, response)=>{
     
     login(request, response);
 })
-router.route('/login').get((request, response)=>{
-    
-    response.send();
-})
+
 
 
 module.exports = router;
