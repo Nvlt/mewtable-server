@@ -1,17 +1,8 @@
 const {v4:uuid} = require('uuid');
 let dbServices = require('./dbServices');
 let clientManager = {
-    clients:[
-        
-    ],
-    channels:[
-        {
-            id:'fasfsafaf',
-            name:'',
-            participants:[],
-            clients:[]
-        }
-    ],
+    clients:[],
+    channels:[],
     createChannel:function(name = '',participants)
     {
         this.channels.unshift(

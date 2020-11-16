@@ -1,10 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const {getUsers, login} = require('./dbServices');
+const {login} = require('./dbServices');
 const dbServices = require('./dbServices');
 const clientManager = require('./clientManager');
-const {DATABASE_URL} = require('./config');
+const {v4:uuid} = require('uuid');
+
+
 
 
 router.route('/api/user/:token').get((request, response)=>{
@@ -12,19 +14,32 @@ router.route('/api/user/:token').get((request, response)=>{
     const user = clientManager.findClientByToken(token);
     dbServices.getUser(response,user.auth_name);
     
-})
-router.route('/register').get((request, response)=>{
-    response.send('test data');
-})
+});
+router.route('/api/channels/').get((request, response)=>{
+    const testChannel = {id:uuid(),name:'Test Channel',participants:`'Violet#15638','HAXOR#98775'`}
+    response.send(dbServices.registerChannel(testChannel));
+    
+});
+router.route('/api/channels/').get((request, response)=>{
+    const testChannel = {id:uuid(),name:'Test Channel',participants:`'Violet#15638','HAXOR#98775'`}
+    response.send(dbServices.registerChannel(testChannel));
+    
+});
+router.route('/api/register').post(async (request, response)=>{
+  
+    await dbServices.registerUser(request, response)
+});
 
-router.route('/login').post((request, response)=>{
+router.route('/api/login').post((request, response)=>{
     
     login(request, response);
-})
-router.route('/login').get((request, response)=>{
+
+});
+router.route('/').get((request, response)=>{
     
-    response.send();
-})
+    response.status(200).send('Hello, world!');
+});
+
 
 
 module.exports = router;
