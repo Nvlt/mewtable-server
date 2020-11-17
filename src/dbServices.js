@@ -3,11 +3,9 @@ const knex = require('knex');
 const {DATABASE_URL} = require('./config');
 const {v4:uuid} = require('uuid');
 const bcrypt = require('bcryptjs');
-const clientManager = require('./clientManager');
 const vuid = require('./vuid');
+const {formatArray} = require('./helpers.js');
 const authService = require('./authService');
-const { use } = require('./Router');
-const e = require('express');
 const db = knex({
     client:'pg',
     connection:DATABASE_URL
@@ -15,34 +13,31 @@ const db = knex({
 
 
 const dbServices = {
-getUser:async function(response, user)
+getUser:async function(user)
 {
     let userdata = await db('users').select('*').where({auth_name:user}).catch(e =>{
-        response.status(400).json({Auth:"Rejected",reason:"Could not obtain user info."});
+        return null;
     });
-    //console.log(user);
-    
+    if(!userdata)
+    {
+        return null;
+    }
     if(userdata[0])
     {   
-        //Will add auth here.
-        if(1)
-        {
-            const channels = await dbServices.getUserChannels(userdata[0].auth_name);
-            
-            response.json({                
-                user:userdata[0].auth_name,
-                friends:userdata[0].friends,
-                friendRequests:userdata[0].friend_requests,
-                channels: channels,
-                messages: await dbServices.getUserMessages(userdata[0].auth_name)
-            });
-        }        
+        const channels = await dbServices.getUserChannels(userdata[0].auth_name);
+        let public_channels = await db.raw(`SELECT * FROM channels WHERE NOT '${user}' = ANY(participants);`);
+        public_channels = public_channels.rows;
+        
+        return {                
+            user:userdata[0].auth_name,
+            friends:userdata[0].friends,
+            friendRequests:userdata[0].friend_requests,
+            public_channels,
+            channels: channels,
+            messages: await dbServices.getUserMessages(userdata[0].auth_name)
+        };        
     }
-    else
-    {
-        response.send();
-    }
-     
+    return null;
           
 },
 validatePassword(password) {
@@ -148,15 +143,80 @@ registerChannel:async function(channel)
     if(channel)
     {
         const {id, participants, name} = channel
-        return await db.raw(`INSERT INTO channels(id,name,participants) values('${id}','${name}',ARRAY[${participants}])`);
+        return await db.raw(`INSERT INTO channels(id,name,participants) values('${id}','${name}',${formatArray(participants)})`);
     }
 },
 updateChannel:async function(channel)
 {
     const {id, participants} = channel
-    return await db.raw(`UPDATE channels SET participants = ARRAY[${participants}] WHERE id = ${id}`);
+    return await db.raw(`UPDATE channels SET participants = ${formatArray(participants)} WHERE id = '${id}'`);
 
 },
+addUserToChannel:async function(auth_name, channel_id)
+{
+    //console.log(channel_id)
+    let data = await db.raw(`SELECT participants FROM channels WHERE id = '${channel_id}'`);
+    
+    if(data)
+    {
+        data = data.rows[0];
+        if(data)
+        {
+            let participants = data.participants;
+            if(!participants.includes(auth_name))
+            {
+                participants.push(auth_name)
+                dbServices.updateChannel({id:channel_id,participants})
+                return participants;
+            }
+            else
+            {
+                return {error:`You're already in that channel.`};
+            }
+        }
+        return {error:'channel does not exist'};
+    }
+    else
+    {
+        return {error:'channel does not exist'};
+    }
+    //db.raw(`UPDATE channels SET participants = ARRAY[${participants}] WHERE id = ${id}`);
+
+},
+removeUserFromChannel:async function(auth_name, channel_id)
+{
+    //console.log(channel_id)
+    let data = await db.raw(`SELECT participants FROM channels WHERE id = '${channel_id}'`);
+    
+    if(data)
+    {
+        data = data.rows[0];
+        if(data)
+        {
+            let participants = data.participants;
+            if(!participants.includes(auth_name))
+            {
+                return {error:`You're not in that channel.`};
+                
+            }
+            else
+            {
+                let index = participants.indexOf(auth_name);
+                participants.splice(index,1);
+                dbServices.updateChannel({id:channel_id,participants});
+                return participants;
+            }
+        }
+        return {error:'channel does not exist'};
+    }
+    else
+    {
+        return {error:'channel does not exist'};
+    }
+    //db.raw(`UPDATE channels SET participants = ARRAY[${participants}] WHERE id = ${id}`);
+
+},
+
 msgProcessor:(message)=>
 {
     const escapeCharacters = ['?'];
@@ -178,6 +238,7 @@ msgProcessor:(message)=>
 },
 login:async(request, response)=>
 {
+    const clientManager = request.app.get('cm')
     const {email = '', password = ''} = request.body; 
     let userdata = await db('users').select('*').where({email:email}).catch(e =>{
         response.status(400).json({Auth:"Rejected",error:"Internal server error."});
@@ -200,14 +261,7 @@ login:async(request, response)=>
 
             const payload = {
                 token:token,
-                initState:{
-                    user:userdata[0].auth_name,
-                    friends:userdata[0].friends,
-                    friendRequests:userdata[0].friend_requests,
-                    channels: channels,
-                    messages: await dbServices.getUserMessages(userdata[0].auth_name),
-                    
-                }
+                
             }
             const jwtResponse = authService.createJwt(userdata[0].auth_name,payload);
 

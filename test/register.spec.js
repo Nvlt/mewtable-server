@@ -18,7 +18,7 @@ describe('/api/register tests',async () => {
     const id = (new vuid()).v1();
     const dummyAccount = {"email":`${id}@${id}.com`, "password":"password","display_name":""};
     const testData = await supertest(app).post('/api/register').send(dummyAccount);
-    console.log(testData.body)
+    //console.log(testData.body)
     
     return chai.expect(testData.status).to.equal(400) && chai.expect(Object.keys(testData.body)).to.contain("error");
 

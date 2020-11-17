@@ -6,8 +6,9 @@ const helmet = require('helmet');
 const Router = require('./Router');
 const app = express();
 const morganOption = (process.env.NODE_ENV === 'production') ? 'tiny' : 'common';
+const clientManager = require('./clientManager');
 
-
+app.set('cm',clientManager);
 app.use(morgan(morganOption))
 app.use(helmet())
 app.use(cors())
