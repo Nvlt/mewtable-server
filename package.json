@@ -1,7 +1,10 @@
 {
-  "name": "node-boilerplate",
+  "name": "myapp",
+  "description": "a really cool app",
   "version": "1.0.0",
-  "description": "",
+  "engines": {
+    "node": "12.18.3"
+  },
   "main": "./src/server.js",
   "scripts": {
     "migrate": "postgrator --config postgrator-config.js",
@@ -21,6 +24,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "helmet": "^4.1.0",
+    "heroku": "^7.47.2",
     "http": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.5",
