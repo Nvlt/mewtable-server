@@ -1,26 +1,30 @@
-# Express Boilerplate!
+# Mewtable  
+[Mewtable](https://mewtable.vercel.app/ "Mewtable") ||
+[Client GitHub](https://github.com/Nvlt/Mewtable "Client GitHub") ||
+[API GitHub](https://github.com/Nvlt/mewtable-server "API Github")  
+By: [Alexis Felts](https://github.com/Nvlt "Alexis Felts")
 
-This is a boilerplate project used for starting new projects!
 
-## Set up
+## About Mewtable:
+Mewtable is a basic chat application where users can create public channels and chat in them with others.  
 
-Complete the following steps to start a new project (NEW-PROJECT-NAME):
 
-1. Clone this repository to your local machine `git clone BOILERPLATE-URL NEW-PROJECTS-NAME`
-2. `cd` into the cloned repository
-3. Make a fresh start of the git history for this project with `rm -rf .git && git init`
-4. Install the node dependencies `npm install`
-5. Move the example Environment file to `.env` that will be ignored by git and read by the express server `mv example.env .env`
-6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name": "express-boilerplate",`
+## API Endpoints:  
 
-## Scripts
 
-Start the application `npm start`
+### '/api/user Authenticated GET'
+This endpoint is used for getting all of the user's data after logging in.
+### '/api/channels Authenticated POST'
+On this endpoint we can post to create a new channel.
+### '/api/channels Authenticated PATCH'
+On this end point we can add or remove a user as a participant of an existing channel.
+### '/api/login public POST'
+On this end point we can post our email and password to login.
+### '/api/register public POST'
+On this end point we can post our email, display name, and password to register.
 
-Start nodemon for the application `npm run dev`
 
-Run the tests `npm test`
+## Technologies Used:  
+FrontEnd: JavaScript, React, CSS 3, HTML 5, and Jest.  
 
-## Deploying
-
-When your new project is ready for deployment, add a new Heroku application with `heroku create`. This will make a new git remote called "heroku" and you can then `npm run deploy` which will push to this remote's master branch.
+BackEnd: Node.js, Express.js, PostgreSQL, Mocha & Chai.

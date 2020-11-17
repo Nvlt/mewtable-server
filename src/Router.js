@@ -6,8 +6,7 @@ const {login} = require('./dbServices');
 const dbServices = require('./dbServices');
 const {v4:uuid} = require('uuid');
 const atob = require('atob');
-const app = require('./app');
-const {formatArray} = require('./helpers.js');
+
 
 function getAuthoriation(request,response)
 {
